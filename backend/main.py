@@ -92,7 +92,6 @@ async def get_price_history(symbol: str, interval: str = '1h'):
 @app.post("/api/order")
 async def create_order(order: OrderRequest):
     endpoint = "/api/v3/order/test" if order.test else "/api/v3/order"
-
     params = {
         "symbol": order.symbol.upper(),
         "side": order.side.upper(),

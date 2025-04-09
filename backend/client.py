@@ -55,7 +55,7 @@ class BinanceTestClient:
         def find_asset(asset):
             for b in data["balances"]:
                 if b["asset"] == asset:
-                    total = str(float(b["free"]) + float(b["locked"]))
+                    total = b["free"]
                     return {"asset": asset, "balance": total}
             return {"asset": asset, "balance": "0"}
 
@@ -67,4 +67,3 @@ class BinanceTestClient:
             "eth_balance": find_asset("ETH"),
         }
 
-#

@@ -6,6 +6,10 @@ import time
 
 from urllib.parse import urlencode
 
+# cd trading-dashboard, cd backend
+# pip install "fastapi[all]"
+# estando en backend correr: uvicorn main:app --port 8000 --reload
+
 
 class BinanceTestClient:
     def __init__(self, api_key: str, api_secret: str):
@@ -36,3 +40,12 @@ class BinanceTestClient:
             return requests.get(f"{self.base_url}{endpoint}", params=params, headers=headers)
 
         return requests.post(f"{self.base_url}{endpoint}", params=params, headers=headers)
+
+    def get_price(self,symbol:str):
+        res = requests.get(self.base_url + "/v3/ticker/price?symbol="+symbol)
+        res_dict = res.json()
+        return res_dict
+
+    def get_account(self) :
+        response = self._execute_request(self.base_url + "/v3/account", params={})
+        data = response.json()

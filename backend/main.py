@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
+from models import PriceInfo
 
 from dotenv import load_dotenv
 
@@ -34,15 +35,17 @@ async def get_account() -> AccountInfo:
     """
     Get Binance account information
     """
-    ...
+    res = client.get_account(str)
+    return res
 
 
 @app.get("/api/price")
-async def get_price(symbol: str):
+async def get_price(symbol: str) -> PriceInfo:
     """
     Get price of a symbol
     """
-    ...
+    res = client.get_price(symbol)
+    return res
 
 
 @app.get("/api/price-history")

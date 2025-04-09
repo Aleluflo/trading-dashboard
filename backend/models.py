@@ -68,3 +68,4 @@ class Order(BaseModel):
     workingTime: int
     fills: List[OrderFill]
     selfTradePreventionMode: str
+

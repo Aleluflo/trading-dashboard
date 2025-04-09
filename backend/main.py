@@ -8,7 +8,7 @@ import requests
 from datetime import datetime
 from client import BinanceTestClient
 from models import AccountInfo, OrderRequest, CandleInfo
-import axios from axios
+
 
 load_dotenv()
 
@@ -90,39 +90,15 @@ async def get_price_history(symbol: str, interval: str = '1h'):
 
 
 @app.post("/api/order")
-const placeOrder = async () => {
-  try {
-    const orderData = {
-      symbol,
-      side,
-      order_type,
-      quantity: parseFloat(quantity),
-      test: testOrder, // from the checkbox
-    };
+async def create_order(order: OrderRequest):
+    endpoint = "/api/v3/order/test" if order.test else "/api/v3/order"
 
-    // Step 1: Place the order
-    const orderResponse = await axios.post("/api/order", orderData);
-    console.log("Order placed:", orderResponse.data);
-
-    // Step 2: Refresh balances
-    const accountResponse = await axios.get("/api/account");
-    setAccountInfo(accountResponse.data); // update UI with new balances
-
-    alert("Order placed and balances updated!");
-  } catch (error) {
-    console.error("Order error:", error);
-    alert("Failed to place order.");
-  }
-};
-#async def create_order(order: OrderRequest):
-    #endpoint = "/api/v3/order/test" if order.test else "/api/v3/order"
-
-    #params = {
-     #   "symbol": order.symbol.upper(),
-      #  "side": order.side.upper(),
-       # "type": order.order_type.upper(),  # use order.order_type here
-        #"quantity": order.quantity
-   # }
+    params = {
+        "symbol": order.symbol.upper(),
+        "side": order.side.upper(),
+        "type": order.order_type.upper(),  # use order.order_type here
+        "quantity": order.quantity
+    }
 
     response = client._execute_request(endpoint=endpoint, params=params, method="POST")
     print(response)

@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import os
 from models import PriceInfo
-
+from typing import List
 from dotenv import load_dotenv
 
 from client import BinanceTestClient
@@ -35,8 +35,8 @@ async def get_account() -> AccountInfo:
     """
     Get Binance account information
     """
-    res = client.get_account(str)
-    return res
+    res = client.get_account()
+    return AccountInfo(**res)
 
 
 @app.get("/api/price")
@@ -47,12 +47,39 @@ async def get_price(symbol: str) -> PriceInfo:
     res = client.get_price(symbol)
     return res
 
+    @app.get("/api/price-history", response_model=List[CandleInfo])
+    async def get_price_history(symbol: str, interval: str = '1h'):
+        try:
+            endpoint = "/v3/klines"
+            params = {
+                "symbol": symbol,
+                "interval": interval,
+                "limit": 100
+            }
+            res = requests.get(f"{client.base_url}{endpoint}", params=params)
+            if res.status_code != 200:
+                raise HTTPException(status_code=res.status_code, detail=res.text)
 
-@app.get("/api/price-history")
-async def get_price(symbol: str, interval: str = '1h'):
-    """
-    Get price of a symbol
-    """
+            raw_candles = res.json()
+            formatted = []
+            for c in raw_candles:
+                formatted.append(CandleInfo(
+                    open_time=c[0],
+                    open=float(c[1]),
+                    high=float(c[2]),
+                    low=float(c[3]),
+                    close=float(c[4]),
+                    volume=float(c[5]),
+                    close_time=c[6],
+                    quote_asset_volume=float(c[7]),
+                    number_of_trades=c[8],
+                    taker_buy_base_asset_volume=float(c[9]),
+                    taker_buy_quote_asset_volume=float(c[10]),
+                    ignore=c[11]
+                ))
+            return formatted
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
     ...
 
 

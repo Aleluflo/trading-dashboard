@@ -46,6 +46,24 @@ class BinanceTestClient:
         res_dict = res.json()
         return res_dict
 
-    def get_account(self) :
-        response = self._execute_request(self.base_url + "/v3/account", params={})
+    def get_account(self):
+        response = self._execute_request("/v3/account", params={})
+        if response.status_code != 200:
+            raise Exception(f"Error: {response.status_code}, {response.text}")
         data = response.json()
+
+        def find_asset(asset):
+            for b in data["balances"]:
+                if b["asset"] == asset:
+                    total = str(float(b["free"]) + float(b["locked"]))
+                    return {"asset": asset, "balance": total}
+            return {"asset": asset, "balance": "0"}
+
+        return {
+            "uid": data.get("accountNumber", 0),
+            "account_type": data.get("accountType", ""),
+            "btc_balance": find_asset("BTC"),
+            "usdt_balance": find_asset("USDT"),
+            "eth_balance": find_asset("ETH"),
+        }
+
